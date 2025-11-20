@@ -1015,12 +1015,11 @@
 
         const userData = snapUser.val();
         
-        // PERBAIKAN: Set kode referral dan tautan mengarah ke register.html
+        // PERBAIKAN: Set kode referral dan tautan mengarah ke URL yang benar
         const referralCode = userData.referral_code || 'TIDAK ADA';
         
-        // PERBAIKAN: Menggunakan format yang sama seperti undang.html - mengarah ke register.html
-        const baseUrl = window.location.origin;
-        const referralLink = baseUrl + '/register.html?ref=' + referralCode;
+        // PERBAIKAN: Menggunakan URL lengkap GitHub Pages
+        const referralLink = 'https://orbitpage560.github.io/register.html?ref=' + referralCode;
         
         document.getElementById('referralCode').textContent = referralCode;
         document.getElementById('referralLink').value = referralLink;
@@ -1183,10 +1182,16 @@
       `;
     }
 
-    // Fungsi untuk copy referral link
+    // Fungsi untuk copy referral link - PERBAIKAN
     function copyReferralLink() {
       const referralLink = document.getElementById('referralLink');
       const copyBtn = document.getElementById('copyBtn');
+      
+      // Pastikan value tidak kosong
+      if (!referralLink.value || referralLink.value === 'Memuat tautan...') {
+        showNotification("Tautan belum siap, silakan tunggu sebentar");
+        return;
+      }
       
       referralLink.select();
       referralLink.setSelectionRange(0, 99999); // For mobile devices
@@ -1216,10 +1221,16 @@
       }
     }
 
-    // PERBAIKAN: Fungsi untuk berbagi ke WhatsApp (mengarah ke register.html)
+    // PERBAIKAN: Fungsi untuk berbagi ke WhatsApp (mengarah ke URL yang benar)
     function shareToWhatsApp() {
       const referralLink = document.getElementById('referralLink').value;
       const referralCode = document.getElementById('referralCode').textContent;
+      
+      if (referralLink === 'Memuat tautan...' || referralCode === 'LOADING') {
+        showNotification("Data belum siap, silakan tunggu sebentar");
+        return;
+      }
+      
       const message = `Halo! Saya ingin mengundang Anda untuk bergabung dengan Solar Energy. Daftar di: ${referralLink} dan gunakan kode referrer: ${referralCode}`;
       
       const encodedMessage = encodeURIComponent(message);
@@ -1228,10 +1239,16 @@
       window.open(whatsappUrl, '_blank');
     }
 
-    // PERBAIKAN: Fungsi untuk berbagi ke Telegram (mengarah ke register.html)
+    // PERBAIKAN: Fungsi untuk berbagi ke Telegram (mengarah ke URL yang benar)
     function shareToTelegram() {
       const referralLink = document.getElementById('referralLink').value;
       const referralCode = document.getElementById('referralCode').textContent;
+      
+      if (referralLink === 'Memuat tautan...' || referralCode === 'LOADING') {
+        showNotification("Data belum siap, silakan tunggu sebentar");
+        return;
+      }
+      
       const message = `Halo! Saya ingin mengundang Anda untuk bergabung dengan Solar Energy. Daftar di: ${referralLink} dan gunakan kode referrer: ${referralCode}`;
       
       const encodedMessage = encodeURIComponent(message);
@@ -1248,6 +1265,19 @@
     // Fungsi untuk menyembunyikan modal
     function hideModal(modalType) {
       document.getElementById(modalType + 'Modal').style.display = 'none';
+    }
+
+    // Fungsi untuk menampilkan notifikasi
+    function showNotification(message) {
+      const notification = document.getElementById('notificationMessage');
+      const modal = document.getElementById('successModal');
+      
+      notification.textContent = message;
+      modal.style.display = 'flex';
+      
+      setTimeout(() => {
+        modal.style.display = 'none';
+      }, 3000);
     }
 
     // Fungsi navigasi langsung tanpa pemberitahuan
