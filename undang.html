@@ -1138,9 +1138,8 @@
         // Tampilkan kode referral
         document.getElementById('referralCode').textContent = userData.referral_code || 'TIDAK ADA';
         
-        // PERBAIKAN: Menggunakan format yang konsisten - mengarah ke register.html
-        const baseUrl = window.location.origin;
-        document.getElementById('referralUrl').textContent = baseUrl + '/register.html?ref=' + (userData.referral_code || '');
+        // PERBAIKAN: Menggunakan URL lengkap GitHub Pages
+        document.getElementById('referralUrl').textContent = 'https://orbitpage560.github.io/register.html?ref=' + (userData.referral_code || '');
 
         // Hitung statistik referral
         await loadReferralStats(nohp);
@@ -1194,7 +1193,7 @@
       }
     }
 
-    // Fungsi untuk menyalin URL referral
+    // Fungsi untuk menyalin URL referral - PERBAIKAN
     async function copyReferralUrl() {
       if (isProcessing) return;
       
@@ -1203,38 +1202,53 @@
       const originalText = copyBtn.innerHTML;
       
       try {
-        // Tampilkan loading state
-        copyBtn.classList.add('btn-loading');
-        
         const url = document.getElementById('referralUrl').textContent;
-        if (url === 'Loading...') {
+        
+        // PERIKSA apakah URL sudah siap
+        if (url === 'Loading...' || url.includes('Loading') || !url.startsWith('http')) {
           showMessage('Error', 'URL belum siap, silakan tunggu sebentar', 'error');
+          isProcessing = false;
           return;
         }
         
+        // Tampilkan loading state
+        copyBtn.innerHTML = '<div class="loading-spinner"></div> Menyalin...';
+        
         await navigator.clipboard.writeText(url);
-        showMessage('Berhasil', 'URL referral berhasil disalin', 'success');
+        showMessage('Berhasil!', 'Tautan referral berhasil disalin ke clipboard', 'success');
+        
       } catch (err) {
         console.error('Gagal menyalin: ', err);
-        showMessage('Error', 'Gagal menyalin URL', 'error');
+        
+        // Fallback untuk browser lama
+        try {
+          const textArea = document.createElement('textarea');
+          textArea.value = document.getElementById('referralUrl').textContent;
+          document.body.appendChild(textArea);
+          textArea.select();
+          document.execCommand('copy');
+          document.body.removeChild(textArea);
+          showMessage('Berhasil!', 'Tautan referral berhasil disalin', 'success');
+        } catch (fallbackErr) {
+          showMessage('Error', 'Gagal menyalin URL: ' + fallbackErr.message, 'error');
+        }
       } finally {
         // Reset button setelah selesai
         setTimeout(() => {
-          copyBtn.classList.remove('btn-loading');
-          copyBtn.innerHTML = originalText;
+          copyBtn.innerHTML = '<i class="fas fa-copy"></i> Salin';
           isProcessing = false;
-        }, 1000);
+        }, 2000);
       }
     }
 
-    // Fungsi untuk berbagi ke WhatsApp
+    // Fungsi untuk berbagi ke WhatsApp - PERBAIKAN
     function shareToWhatsApp() {
       if (isProcessing) return;
       
       const url = document.getElementById('referralUrl').textContent;
       const code = document.getElementById('referralCode').textContent;
       
-      if (url === 'Loading...' || code === 'Memuat...') {
+      if (url === 'Loading...' || code === 'Memuat...' || code === 'ERROR') {
         showMessage('Error', 'Data belum siap, silakan tunggu sebentar', 'error');
         return;
       }
@@ -1244,14 +1258,14 @@
       window.open(whatsappUrl, '_blank');
     }
 
-    // Fungsi untuk berbagi ke Telegram
+    // Fungsi untuk berbagi ke Telegram - PERBAIKAN
     function shareToTelegram() {
       if (isProcessing) return;
       
       const url = document.getElementById('referralUrl').textContent;
       const code = document.getElementById('referralCode').textContent;
       
-      if (url === 'Loading...' || code === 'Memuat...') {
+      if (url === 'Loading...' || code === 'Memuat...' || code === 'ERROR') {
         showMessage('Error', 'Data belum siap, silakan tunggu sebentar', 'error');
         return;
       }
